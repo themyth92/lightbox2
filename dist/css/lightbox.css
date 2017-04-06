@@ -166,7 +166,7 @@ body.lb-disable-scrolling {
 }
 
 .lb-data .lb-details {
-  width: 85%;
+  width: 70%;
   float: left;
   text-align: left;
   line-height: 1.1em;
@@ -190,12 +190,11 @@ body.lb-disable-scrolling {
   color: #999999;
 }
 
-.lb-data .lb-close {
+.lb-data .lb-close, .lb-data .lb-rotate {
   display: block;
   float: right;
   width: 30px;
   height: 30px;
-  background: url(../images/close.png) top right no-repeat;
   text-align: right;
   outline: none;
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=70);
@@ -206,7 +205,15 @@ body.lb-disable-scrolling {
   transition: opacity 0.2s;
 }
 
-.lb-data .lb-close:hover {
+.lb-data .lb-close {
+  background: url(../images/close.png) top right no-repeat;
+}
+
+.lb-data .lb-rotate {
+  background: url(../images/rotate.png) center center no-repeat;
+}
+
+.lb-data .lb-close:hover, .lb-data .lb-rotate:hover {
   cursor: pointer;
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
   opacity: 1;

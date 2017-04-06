@@ -79,5 +79,5 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default', ['connect', 'watch']);
   grunt.registerTask('test', ['jshint', 'jscs']);
-  grunt.registerTask('build', ['jshint', 'jscs', 'copy:dist', 'concat', 'uglify', 'cssmin:minify']);
+  grunt.registerTask('build', ['copy:dist', 'concat', 'uglify', 'cssmin:minify']);
 };
