@@ -74,6 +74,8 @@ a+' xmlns="urn:schemas-microsoft.com:vml" class="rvml">')}}}())})(jQuery);
     showImageNumberLabel: true,
     wrapAround: false,
     disableScrolling: false,
+    iframeWidth: 600,
+    iframeHeight: 400,
     /*
     Sanitize Title
     If the caption data is trusted, for example you are hardcoding it in, then leave this to false.
@@ -117,7 +119,42 @@ a+' xmlns="urn:schemas-microsoft.com:vml" class="rvml">')}}}())})(jQuery);
   // Attach event handlers to the new DOM elements. click click click
   Lightbox.prototype.build = function() {
     var self = this;
-    $('<div id="lightboxOverlay" class="lightboxOverlay"></div><div id="lightbox" class="lightbox"><div class="lb-outerContainer"><div class="lb-container"><img class="lb-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" /><div class="lb-nav"><a class="lb-prev" href="" ></a><a class="lb-next" href="" ></a></div><div class="lb-loader"><a class="lb-cancel"></a></div></div></div><div class="lb-dataContainer"><div class="lb-data"><div class="lb-details"><span class="lb-caption"></span><span class="lb-number"></span></div><div class="lb-closeContainer"><a class="lb-close"></a><a class="lb-rotate"></a></div></div></div></div>').appendTo($('body'));
+    $('<div id="lightboxOverlay" class="lightboxOverlay"></div>' +
+      '<div id="lightbox" class="lightbox">' +
+        '<div class="lb-outerContainer">' +
+          '<div class="lb-container">' +
+            '<img class="lb-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" />' +
+            '<div class="lb-frame-container" id="lb-frame-container" src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" />' +
+            '<div class="lb-loader">' +
+              '<a class="lb-cancel"></a>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="lb-dataContainer">' +
+          '<div class="lb-data">' +
+            '<div class="lb-details">' +
+              '<span class="lb-caption"></span>' +
+              '<span class="lb-number"></span>' +
+            '</div>' +
+            '<div class="lb-closeContainer">' +
+              '<a class="lb-close">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>' +
+              '</a>' +
+              '<a class="lb-rotate">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon""><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>' +
+              '</a>' +
+              '<a class="lb-right-nav">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 16 12 12 8"></polyline><line x1="8" y1="12" x2="16" y2="12"></line></svg>' +
+              '</a>' +
+              '<a class="lb-left-nav">' +
+                '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><circle cx="12" cy="12" r="10"></circle><polyline points="12 8 8 12 12 16"></polyline><line x1="16" y1="12" x2="8" y2="12"></line></svg>' +
+              '</a>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    ).appendTo($('body'));
 
     // Cache jQuery objects
     this.$lightbox       = $('#lightbox');
@@ -125,7 +162,6 @@ a+' xmlns="urn:schemas-microsoft.com:vml" class="rvml">')}}}())})(jQuery);
     this.$outerContainer = this.$lightbox.find('.lb-outerContainer');
     this.$container      = this.$lightbox.find('.lb-container');
     this.$image          = this.$lightbox.find('.lb-image');
-    this.$nav            = this.$lightbox.find('.lb-nav');
     this.$cont           = this.$lightbox.find('.lb-outerContainer'); 
 
     // enable rotation
@@ -177,49 +213,29 @@ a+' xmlns="urn:schemas-microsoft.com:vml" class="rvml">')}}}())})(jQuery);
       return false;
     });
 
-    this.$lightbox.find('.lb-prev').on('click', function() {
+    this.$lightbox.find('.lb-left-nav').on('click', function() {
+      // do not allow to left click when index = 0 and the wrapAround option is not set
       if (self.currentImageIndex === 0) {
-        self.changeImage(self.album.length - 1);
+        if (self.options.wrapAround) {
+          self.changeImage(self.album.length - 1);
+        }
       } else {
         self.changeImage(self.currentImageIndex - 1);
       }
       return false;
     });
 
-    this.$lightbox.find('.lb-next').on('click', function() {
+    this.$lightbox.find('.lb-right-nav').on('click', function() {
+      // do not allow to right click when index = length - 1 and wrapAround option is not set
       if (self.currentImageIndex === self.album.length - 1) {
-        self.changeImage(0);
+        if (self.options.wrapAround) {
+          self.changeImage(0);
+        }
       } else {
         self.changeImage(self.currentImageIndex + 1);
       }
       return false;
     });
-
-    /*
-      Show context menu for image on right-click
-
-      There is a div containing the navigation that spans the entire image and lives above of it. If
-      you right-click, you are right clicking this div and not the image. This prevents users from
-      saving the image or using other context menu actions with the image.
-
-      To fix this, when we detect the right mouse button is pressed down, but not yet clicked, we
-      set pointer-events to none on the nav div. This is so that the upcoming right-click event on
-      the next mouseup will bubble down to the image. Once the right-click/contextmenu event occurs
-      we set the pointer events back to auto for the nav div so it can capture hover and left-click
-      events as usual.
-     */
-    this.$nav.on('mousedown', function(event) {
-      if (event.which === 3) {
-        self.$nav.css('pointer-events', 'none');
-
-        self.$lightbox.one('contextmenu', function() {
-          setTimeout(function() {
-              this.$nav.css('pointer-events', 'auto');
-          }.bind(self), 0);
-        });
-      }
-    });
-
 
     this.$lightbox.find('.lb-loader, .lb-close').on('click', function() {
       self.end();
@@ -297,6 +313,7 @@ a+' xmlns="urn:schemas-microsoft.com:vml" class="rvml">')}}}())})(jQuery);
   // Hide most UI elements in preparation for the animated resizing of the lightbox.
   Lightbox.prototype.changeImage = function(imageNumber) {
     var self = this;
+    $('.lb-frame-container').hide();
 
     this.disableKeyboardNav();
     var $image = this.$lightbox.find('.lb-image');
@@ -304,7 +321,7 @@ a+' xmlns="urn:schemas-microsoft.com:vml" class="rvml">')}}}())})(jQuery);
     this.$overlay.fadeIn(this.options.fadeDuration);
 
     $('.lb-loader').fadeIn('slow');
-    this.$lightbox.find('.lb-image, .lb-nav, .lb-prev, .lb-next, .lb-dataContainer, .lb-numbers, .lb-caption').hide();
+    this.$lightbox.find('.lb-image, .lb-dataContainer, .lb-numbers, .lb-caption').hide();
 
     this.$outerContainer.addClass('animating');
 
@@ -362,6 +379,70 @@ a+' xmlns="urn:schemas-microsoft.com:vml" class="rvml">')}}}())})(jQuery);
       self.sizeContainer($image.width(), $image.height());
     };
 
+    preloader.onerror = function() {
+      // file maybe pdf
+      // try to show it in iframe
+      var pdfLoader = document.createElement('iframe');
+      var $frameContainer = $('.lb-frame-container');
+
+      // pdf will work but others like video will not work and browser
+      // will default to download the file
+      pdfLoader.onload = function() {
+        var imageHeight;
+        var imageWidth;
+        var maxImageHeight;
+        var maxImageWidth;
+        var windowHeight;
+        var windowWidth;
+
+        if (self.options.fitImagesInViewport) {
+          // Fit image inside the viewport.
+          // Take into account the border around the image and an additional 10px gutter on each side.
+  
+          windowWidth    = $(window).width();
+          windowHeight   = $(window).height();
+          maxImageWidth  = windowWidth - self.containerPadding.left - self.containerPadding.right - self.imageBorderWidth.left - self.imageBorderWidth.right - 20;
+          maxImageHeight = windowHeight - self.containerPadding.top - self.containerPadding.bottom - self.imageBorderWidth.top - self.imageBorderWidth.bottom - 120;
+  
+          // Check if image size is larger then maxWidth|maxHeight in settings
+          if (self.options.maxWidth && self.options.maxWidth < maxImageWidth) {
+            maxImageWidth = self.options.maxWidth;
+          }
+          if (self.options.maxHeight && self.options.maxHeight < maxImageWidth) {
+            maxImageHeight = self.options.maxHeight;
+          }
+  
+          // Is the current image's width or height is greater than the maxImageWidth or maxImageHeight
+          // option than we need to size down while maintaining the aspect ratio.
+          if ((pdfLoader.width > maxImageWidth) || (pdfLoader.height > maxImageHeight)) {
+            if ((pdfLoader.width / maxImageWidth) > (pdfLoader.height / maxImageHeight)) {
+              imageWidth  = maxImageWidth;
+              imageHeight = parseInt(pdfLoader.height / (pdfLoader.width / imageWidth), 10);
+              pdfLoader.width = imageWidth;
+              pdfLoader.height = imageHeight;
+            } else {
+              imageHeight = maxImageHeight;
+              imageWidth = parseInt(pdfLoader.width / (pdfLoader.height / imageHeight), 10);
+              pdfLoader.width = imageWidth;
+              pdfLoader.height = imageHeight;
+            }
+          }
+        }
+        self.sizeContainer(parseInt(pdfLoader.width, 10), parseInt(pdfLoader.height, 10), true);
+      }
+
+      pdfLoader.onerror = function() {
+        // not a pdf file
+        console.log('Can not parse data, it is not a image file and a pdf file')
+      }
+
+      pdfLoader.src = self.album[imageNumber].link;
+      pdfLoader.width = self.options.iframeWidth;
+      pdfLoader.height = self.options.iframeHeight;
+      $frameContainer.empty();
+      $frameContainer[0].appendChild(pdfLoader);
+    }
+
     preloader.src          = this.album[imageNumber].link;
     this.currentImageIndex = imageNumber;
   };
@@ -374,7 +455,7 @@ a+' xmlns="urn:schemas-microsoft.com:vml" class="rvml">')}}}())})(jQuery);
   };
 
   // Animate the size of the lightbox to fit the image we are showing
-  Lightbox.prototype.sizeContainer = function(imageWidth, imageHeight) {
+  Lightbox.prototype.sizeContainer = function(imageWidth, imageHeight, isPdf) {
     var self = this;
 
     var oldWidth  = this.$outerContainer.outerWidth();
@@ -382,11 +463,17 @@ a+' xmlns="urn:schemas-microsoft.com:vml" class="rvml">')}}}())})(jQuery);
     var newWidth  = imageWidth + this.containerPadding.left + this.containerPadding.right + this.imageBorderWidth.left + this.imageBorderWidth.right;
     var newHeight = imageHeight + this.containerPadding.top + this.containerPadding.bottom + this.imageBorderWidth.top + this.imageBorderWidth.bottom;
 
+    // remove padding if data is pdf
+    if (isPdf) {
+      newWidth  = imageWidth + this.containerPadding.left + this.containerPadding.right;
+      newHeight = imageHeight + this.containerPadding.top + this.containerPadding.bottom;
+    }
+
     function postResize() {
       self.$lightbox.find('.lb-dataContainer').width(newWidth);
       self.$lightbox.find('.lb-prevLink').height(newHeight);
       self.$lightbox.find('.lb-nextLink').height(newHeight);
-      self.showImage();
+      self.showImage(isPdf);
     }
 
     if (oldWidth !== newWidth || oldHeight !== newHeight) {
@@ -402,9 +489,13 @@ a+' xmlns="urn:schemas-microsoft.com:vml" class="rvml">')}}}())})(jQuery);
   };
 
   // Display the image and its details and begin preload neighboring images.
-  Lightbox.prototype.showImage = function() {
+  Lightbox.prototype.showImage = function(isPdf) {
     this.$lightbox.find('.lb-loader').stop(true).hide();
-    this.$lightbox.find('.lb-image').fadeIn(this.options.imageFadeDuration);
+    if (isPdf) {
+      this.$lightbox.find('.lb-frame-container').fadeIn(this.options.imageFadeDuration);
+    } else {
+      this.$lightbox.find('.lb-image').fadeIn(this.options.imageFadeDuration);
+    }
 
     this.updateNav();
     this.updateDetails();
@@ -423,26 +514,17 @@ a+' xmlns="urn:schemas-microsoft.com:vml" class="rvml">')}}}())})(jQuery);
       alwaysShowNav = (this.options.alwaysShowNavOnTouchDevices) ? true : false;
     } catch (e) {}
 
-    this.$lightbox.find('.lb-nav').show();
+    this.$lightbox.find('.lb-left-nav, .lb-right-nav').removeAttr('style');
 
     if (this.album.length > 1) {
       if (this.options.wrapAround) {
-        if (alwaysShowNav) {
-          this.$lightbox.find('.lb-prev, .lb-next').css('opacity', '1');
-        }
-        this.$lightbox.find('.lb-prev, .lb-next').show();
+        // always display nav
       } else {
-        if (this.currentImageIndex > 0) {
-          this.$lightbox.find('.lb-prev').show();
-          if (alwaysShowNav) {
-            this.$lightbox.find('.lb-prev').css('opacity', '1');
-          }
+        if (this.currentImageIndex === 0) {
+          this.$lightbox.find('.lb-left-nav').css('opacity', '0.1');
         }
-        if (this.currentImageIndex < this.album.length - 1) {
-          this.$lightbox.find('.lb-next').show();
-          if (alwaysShowNav) {
-            this.$lightbox.find('.lb-next').css('opacity', '1');
-          }
+        if (this.currentImageIndex === this.album.length - 1) {
+          this.$lightbox.find('.lb-right-nav').css('opacity', '0.1');
         }
       }
     }
