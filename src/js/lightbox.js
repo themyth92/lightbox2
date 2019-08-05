@@ -382,7 +382,7 @@ a+' xmlns="urn:schemas-microsoft.com:vml" class="rvml">')}}}())})(jQuery);
     preloader.onerror = function() {
       // file maybe pdf
       // try to show it in iframe
-      var pdfLoader = document.createElement('object');
+      var pdfLoader = document.createElement('iframe');
       var $frameContainer = $('.lb-frame-container');
 
       // pdf will work but others like video will not work and browser
@@ -437,8 +437,8 @@ a+' xmlns="urn:schemas-microsoft.com:vml" class="rvml">')}}}())})(jQuery);
       }
 
       pdfLoader.src = self.album[imageNumber].link;
-      pdfLoader.width = Lightbox.defaults.iframeWidth;
-      pdfLoader.height = Lightbox.defaults.iframeHeight;
+      pdfLoader.width = self.options.iframeWidth;
+      pdfLoader.height = self.options.iframeHeight;
       $frameContainer.empty();
       $frameContainer[0].appendChild(pdfLoader);
     }
