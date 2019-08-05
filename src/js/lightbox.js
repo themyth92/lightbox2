@@ -382,65 +382,56 @@ a+' xmlns="urn:schemas-microsoft.com:vml" class="rvml">')}}}())})(jQuery);
     preloader.onerror = function() {
       // file maybe pdf
       // try to show it in iframe
-      var pdfLoader = document.createElement('iframe');
+      // FIXME: right now there is no way to catch the error event if the file is not pdf
+      // so it only works for pdf for now
+      // FIXME: Safary will accept pdf as and image so there will be no scroll
       var $frameContainer = $('.lb-frame-container');
+      var imageHeight;
+      var imageWidth;
+      var maxImageHeight;
+      var maxImageWidth;
+      var windowHeight;
+      var windowWidth;
+      $frameContainer.html('<object class="object-frame" data="' +  self.album[imageNumber].link + '" type="application/pdf"></object>');
+      $objectFrame = $('.object-frame');
+      $objectFrame.width(self.options.iframeWidth);
+      $objectFrame.height(self.options.iframeHeight);
 
-      // pdf will work but others like video will not work and browser
-      // will default to download the file
-      pdfLoader.onload = function() {
-        var imageHeight;
-        var imageWidth;
-        var maxImageHeight;
-        var maxImageWidth;
-        var windowHeight;
-        var windowWidth;
+      if (self.options.fitImagesInViewport) {
+        // Fit image inside the viewport.
+        // Take into account the border around the image and an additional 10px gutter on each side.
 
-        if (self.options.fitImagesInViewport) {
-          // Fit image inside the viewport.
-          // Take into account the border around the image and an additional 10px gutter on each side.
-  
-          windowWidth    = $(window).width();
-          windowHeight   = $(window).height();
-          maxImageWidth  = windowWidth - self.containerPadding.left - self.containerPadding.right - self.imageBorderWidth.left - self.imageBorderWidth.right - 20;
-          maxImageHeight = windowHeight - self.containerPadding.top - self.containerPadding.bottom - self.imageBorderWidth.top - self.imageBorderWidth.bottom - 120;
-  
-          // Check if image size is larger then maxWidth|maxHeight in settings
-          if (self.options.maxWidth && self.options.maxWidth < maxImageWidth) {
-            maxImageWidth = self.options.maxWidth;
-          }
-          if (self.options.maxHeight && self.options.maxHeight < maxImageWidth) {
-            maxImageHeight = self.options.maxHeight;
-          }
-  
-          // Is the current image's width or height is greater than the maxImageWidth or maxImageHeight
-          // option than we need to size down while maintaining the aspect ratio.
-          if ((pdfLoader.width > maxImageWidth) || (pdfLoader.height > maxImageHeight)) {
-            if ((pdfLoader.width / maxImageWidth) > (pdfLoader.height / maxImageHeight)) {
-              imageWidth  = maxImageWidth;
-              imageHeight = parseInt(pdfLoader.height / (pdfLoader.width / imageWidth), 10);
-              pdfLoader.width = imageWidth;
-              pdfLoader.height = imageHeight;
-            } else {
-              imageHeight = maxImageHeight;
-              imageWidth = parseInt(pdfLoader.width / (pdfLoader.height / imageHeight), 10);
-              pdfLoader.width = imageWidth;
-              pdfLoader.height = imageHeight;
-            }
+        windowWidth    = $(window).width();
+        windowHeight   = $(window).height();
+        maxImageWidth  = windowWidth - self.containerPadding.left - self.containerPadding.right - self.imageBorderWidth.left - self.imageBorderWidth.right - 20;
+        maxImageHeight = windowHeight - self.containerPadding.top - self.containerPadding.bottom - self.imageBorderWidth.top - self.imageBorderWidth.bottom - 120;
+
+        // Check if image size is larger then maxWidth|maxHeight in settings
+        if (self.options.maxWidth && self.options.maxWidth < maxImageWidth) {
+          maxImageWidth = self.options.maxWidth;
+        }
+        if (self.options.maxHeight && self.options.maxHeight < maxImageWidth) {
+          maxImageHeight = self.options.maxHeight;
+        }
+
+        // Is the current image's width or height is greater than the maxImageWidth or maxImageHeight
+        // option than we need to size down while maintaining the aspect ratio.
+        if (($objectFrame.width() > maxImageWidth) || ($objectFrame.height() > maxImageHeight)) {
+          if (($objectFrame.width() / maxImageWidth) > ($objectFrame.height() / maxImageHeight)) {
+            imageWidth  = maxImageWidth;
+            imageHeight = parseInt($objectFrame.height() / ($objectFrame.width() / imageWidth), 10);
+            $objectFrame.width(imageWidth);
+            $objectFrame.height(imageHeight);
+          } else {
+            imageHeight = maxImageHeight;
+            imageWidth = parseInt($objectFrame.width() / ($objectFrame.height() / imageHeight), 10);
+            $objectFrame.width(imageWidth);
+            $objectFrame.height(imageHeight);
           }
         }
-        self.sizeContainer(parseInt(pdfLoader.width, 10), parseInt(pdfLoader.height, 10), true);
       }
 
-      pdfLoader.onerror = function() {
-        // not a pdf file
-        console.log('Can not parse data, it is not a image file and a pdf file')
-      }
-
-      pdfLoader.src = self.album[imageNumber].link;
-      pdfLoader.width = self.options.iframeWidth;
-      pdfLoader.height = self.options.iframeHeight;
-      $frameContainer.empty();
-      $frameContainer[0].appendChild(pdfLoader);
+      self.sizeContainer($objectFrame.width(), $objectFrame.height(), true);
     }
 
     preloader.src          = this.album[imageNumber].link;
